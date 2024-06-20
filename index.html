@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kitchen Offer Customization</title>
+    <style>
+        html {
+            height: 100%;
+            width: 100%;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-size: cover;
+            background-position: center;
+            color: #333;
+            transition: background-image 0.2s ease-in-out;
+            background-repeat: no-repeat;
+            height: 100%;
+            width: 100%;
+        }
+        .container {
+            max-width: 900px;
+            margin: 50px auto;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        .wizard-step {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .wizard-step.active {
+            display: block;
+            opacity: 1;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+        .buttons button {
+            padding: 10px 20px;
+            background-color: #B6814C;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        .buttons button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .buttons button:hover:enabled {
+            background-color: #715539;
+        }
+        .buttons img {
+            margin-right: 5px;
+        }
+        .download-button img {
+            margin-right: 5px;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        #price {
+            font-weight: bold;
+            color: #B6814C;
+        }
+    </style>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { jsPDF } = window.jspdf;
+
+        const Step = ({ step, children, isActive }) => {
+            return (
+                <div className={`wizard-step ${isActive ? 'active' : ''}`}>
+                    {children}
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [currentStep, setCurrentStep] = useState(0);
+            const [partial, setPartial] = useState('');
+            const [link, setLink] = useState('');
+
+            const area = {
+                fridge: 5,
+                lower_carcus: 22,
+                upper_carcus_deep: 6,
+                upper_carcus_shallow: 6,
+                panels_plain: 12,
+                panels_wood: 12
+            }
+
+            const material_price = {
+                pb_melamine: 60,
+                MDF_PET: 120,
+                MDF_paint: 160,
+                MDF_paint_doors: 260,
+                MDF_Fenix: 200,
+                plywood_robusta_oak: 160,
+                plywood_robusta_walnut: 180,
+                MDF_oak: 190,
+                MDF_walnut: 215
+            }
+
+            const price_fridge_cabinet = area.fridge * material_price.pb_melamine;
+
+            const steps = [
+                {
+                    title: "Оферта за кухня - конфигуратор",
+                    background: 'img/kitchen-default.png',
+                    options: {
+                        fixed_price: [
+                            {
+                                label: "Цена за изработка, доставка и монтаж - 1200лв",
+                                value: 1200
+                            }
+                        ]
+                    }
+                },
+                {
+                    title: "Шкафове отвътре - долни",
+                    background: 'img/kitchen-background-lower-carcuses.png',
+                    options: {
+                        material_carcus_lower: [
+                            { 
+                                label: "Ламинирано ПДЧ - " + (price_fridge_cabinet + (area.lower_carcus * material_price.pb_melamine)) + " лв.", 
+                                value: price_fridge_cabinet + area.lower_carcus * material_price.pb_melamine, 
+                                background: 'img/particleboard.jpg' 
+                            },
+                            { 
+                                label: "MDF с матово PET фолио и ABS кант - " + (price_fridge_cabinet + (area.lower_carcus * material_price.MDF_PET)) + " лв.", 
+                                value: price_fridge_cabinet + area.lower_carcus * material_price.MDF_PET, 
+                                background: 'img/mdf.jpg' 
+                            },
+                            { 
+                                label: "MDF боя - " + (price_fridge_cabinet + (area.lower_carcus * material_price.MDF_paint)) + " лв.", 
+                                value: area.lower_carcus * material_price.MDF_paint, 
+                                background: 'img/mdf.jpg' },
+                            { 
+                                label: "MDF с матово покритие NTM 'Fenix' и ABS кант - " + (price_fridge_cabinet + (area.lower_carcus * material_price.MDF_Fenix)) + " лв.", 
+                                value: area.lower_carcus * material_price.MDF_Fenix, 
+                                background: 'img/mdf.jpg' 
+                            },
+                        ]
+                    }
+                },
+                {
+                    title: "Шкафове отвътре - горни дълбоки",
+                    background: 'img/upper_cabinet_closeup_opened.png',
+                    options: {
+                        material_carcus_upper: [
+                            { 
+                                label: "Ламинирано ПДЧ - " + area.upper_carcus_deep * material_price.pb_melamine + " лв.", 
+                                value: area.upper_carcus_deep * material_price.pb_melamine, 
+                                background: 'img/particleboard.jpg' 
+                            },
+                            { 
+                                label: "MDF с матово PET фолио и ABS кант - " + area.upper_carcus_deep * material_price.MDF_PET + " лв.", 
+                                value: area.upper_carcus_deep * material_price.MDF_PET, 
+                                background: 'img/mdf.jpg' 
+                            },
+                            { 
+                                label: "MDF боя - " + area.upper_carcus_deep * material_price.MDF_Fenix + " лв.", 
+                                value: area.upper_carcus_deep * material_price.MDF_paint, 
+                                background: 'img/mdf.jpg' 
+                            },
+                            { 
+                                label: "MDF с матово покритие NTM 'Fenix' и ABS кант - " + area.upper_carcus_deep * material_price.MDF_Fenix, 
+                                value: area.upper_carcus_deep * material_price.MDF_Fenix, 
+                                background: 'img/mdf.jpg' 
+                            },
+                        ]
+                    }
+                },
+                
+                {
+                    title: "Шкафове отвътре - горни плитки (с дървесни врати)",
+                    background: 'img/upper_cabinet_closeup_opened.png',
+                    options: {
+                        material_carcus_upper_shallow: [
+                        { 
+                                label: "Ламинирано ПДЧ - " + area.upper_carcus_shallow * material_price.pb_melamine + " лв.", 
+                                value: area.upper_carcus_shallow * material_price.pb_melamine, 
+                                background: 'img/particleboard.jpg' 
+                            },
+                            { 
+                                label: "Шперплат топола с фурнир дъб - " + area.upper_carcus_shallow * material_price.plywood_robusta_oak + " лв.", 
+                                value: area.upper_carcus_shallow * material_price.plywood_robusta_oak, 
+                                background: 'img/mdf.jpg' 
+                            },
+                            { 
+                                label: "Шперплат топола с фурнир орех - " + area.upper_carcus_shallow * material_price.plywood_robusta_walnut + " лв.", 
+                                value: area.upper_carcus_shallow * material_price.plywood_robusta_walnut, 
+                                background: 'img/mdf.jpg' 
+                            },
+                            { 
+                                label: "MDF фурнир дъб - " + area.upper_carcus_shallow * material_price.MDF_oak + " лв.", 
+                                value: area.upper_carcus_shallow * material_price.MDF_oak, 
+                                background: 'img/mdf.jpg' 
+                            },
+                            { 
+                                label: "MDF фурнир орех - " + area.upper_carcus_shallow * material_price.MDF_walnut + " лв.", 
+                                value: area.upper_carcus_shallow * material_price.MDF_walnut, 
+                                background: 'img/mdf.jpg' 
+                            }
+                        ]
+                    }
+                },
+                {
+                    title: "Вратички - светли",
+                    background: 'img/kitchen-default.png',
+                    options: {
+                        material_doors_plain: [
+                            { 
+                                label: "Ламинирано ПДЧ - " + area.panels_plain * material_price.pb_melamine + " лв.", 
+                                value: area.panels_plain * material_price.pb_melamine, 
+                                background: 'img/particleboard.jpg' 
+                            },
+                            { 
+                                label: "MDF с матово PET фолио и ABS кант - " + area.panels_plain * material_price.MDF_PET + " лв.", 
+                                value: area.panels_plain * material_price.MDF_PET, 
+                                background: 'img/mdf.jpg' 
+                            },
+                            { 
+                                label: "MDF с матово покритие NTM 'Fenix' и ABS кант - " + area.panels_plain * material_price.MDF_Fenix, 
+                                value: area.panels_plain * material_price.MDF_Fenix, 
+                                background: 'img/mdf.jpg' 
+                            },
+                            { 
+                                label: "MDF боя - " + area.panels_plain * material_price.MDF_Fenix + " лв.", 
+                                value: area.panels_plain * material_price.MDF_paint_doors, 
+                                background: 'img/mdf.jpg' 
+                            },
+                        ]
+                    }
+                },
+                {
+                    title: "Вратички - дървесен декор",
+                    background: 'img/upper_cabinet_closeup.png',
+                    options: {
+                        material_doors_wood: [
+                        { 
+                                label: "Ламинирано ПДЧ - " + area.panels_wood * material_price.pb_melamine + " лв.", 
+                                value: area.panels_wood * material_price.pb_melamine, 
+                                background: 'img/particleboard.jpg' 
+                            },
+                            { 
+                                label: "MDF фурнир дъб - " + area.upper_carcus_shallow * material_price.MDF_oak + " лв.", 
+                                value: area.upper_carcus_shallow * material_price.MDF_oak, 
+                                background: 'img/mdf.jpg' 
+                            },
+                            { 
+                                label: "MDF фурнир орех - " + area.upper_carcus_shallow * material_price.MDF_walnut + " лв.", 
+                                value: area.upper_carcus_shallow * material_price.MDF_walnut, 
+                                background: 'img/mdf.jpg' 
+                            }
+                        ]
+                    }
+                },
+                {
+                    title: "Панти",
+                    background: 'img/kitchen-background1.png',
+                    options: {
+                        hinges: [
+                            { label: "BLUM tip-on - 270 лв", value: 270, background: 'img/kitchen-background4.jpg' },
+                            { label: "BLUM tip-on + клапващи за горните шкафове HK2T - 770 лв.", value: 770, background: 'img/standard-appliances.jpg' }
+                        ]
+                    }
+                },
+                {
+                    title: "Чекмеджета",
+                    background: 'img/kitchen-drawers.png',
+                    options: {
+                        drawers: [
+                            { label: "ЛПДЧ с механизми Blum Tandem - 250 лв.", value: 250, background: 'img/standard-appliances.jpg' },
+                            { label: "Метални чекмеджета Legrabox - 650 лв.", value: 650, link: 'https://rosi.bg/mehanizam-s-plavno-pribirane-za-sliap-agal-platna-osnova---za-shkaf-900-mm-rosi-4413.html', background: 'img/premium-appliances.jpg' }
+                        ]
+                    }
+                },
+                {
+                    title: "Система за вътрешна организация на чекмеджета",
+                    background: 'img/kitchen-drawers-organization.png',
+                    options: {
+                        drawer_organization: [
+                            { label: "Без", value: 0, background: 'img/kitchen-background4.jpg' },
+                            { label: "Blum ORGA-Line за Tandembox - 690 лв", value: 690, background: 'img/standard-appliances.jpg' },
+                            { label: "Blum AMBIA-Line за Legrabox - 1100 лв.", value: 1100, link: 'https://rosi.bg/mehanizam-s-plavno-pribirane-za-sliap-agal-platna-osnova---za-shkaf-900-mm-rosi-4413.html', background: 'img/premium-appliances.jpg' }
+                        ]
+                    }
+                },
+                {
+                    title: "Механизъм за сляп ъгъл",
+                    background: 'img/magic_corner.png',
+                    options: {
+                        blind_corner: [
+                            { label: "Без", value: 0, background: 'img/kitchen-background4.jpg' },
+                            { label: "Тип бъбрек модел Роси - 250 лв.", link: 'https://rosi.bg/mehanizam-s-plavno-pribirane-za-sliap-agal---za-shkaf-900-mm-rosi-2084.html', value: 350, background: 'img/standard-appliances.jpg' },
+                            { label: "Тип бъбрек модел SIGE - INFINITY - 550 лв.", link: 'https://rosi.bg/mehanizam-sige---infinity---dve-niva-za-vgrajdane-v-sliap-agal-montaj-varhu-raft---za-shkaf-900-mm-4069.html', value: 550, background: 'img/standard-appliances.jpg' },
+                            { label: "С плътни дъна и плавно прибиране - модел Роси - 550лв", value: 550, link: 'https://rosi.bg/mehanizam-s-plavno-pribirane-za-sliap-agal-platna-osnova---za-shkaf-900-mm-rosi-4413.html', background: 'img/premium-appliances.jpg' }
+                        ]
+                    }
+                },
+                {
+                    title: "Механизъм за бутилки",
+                    background: 'img/kitchen-drawers-bottles.png',
+                    options: {
+                        twin_tower: [
+                            { label: "Без", value: 0, background: 'img/kitchen-drawers-organization.jpg' },
+                            { label: "Хромирана кошница с механизми Blum - 130лв", value: 130, link: 'interior-i.bg/userfiles/editor/file/кошници[1][1][2].pdf', background: 'img/kitchen-background4.jpg' },
+                            { label: "Модел SIGE INFINITY - 250 лв.", value: 250, link: 'https://rosi.bg/koshnica-sige---infinity-s-chelno-otvariane-i-plavno-pribirane---za-shkaf-150-mm-i-200-mm-4072.html' }
+                        ]
+                    }
+                },
+                {
+                    title: "Механизъм за шкаф над фурна",
+                    background: 'img/kitchen-above_oven_2.png',
+                    options: {
+                        tandem_side: [
+                            { label: "Без, само рафтове", value: 0, background: 'img/kitchen-background4.jpg' },
+                            { label: "Модел Роси - 250 лв.", value: 250, link: 'https://rosi.bg/koshnica-iztegliashta-nerajdaema---za-shkaf-450-600-mm-rosi-4914.html', background: 'img/standard-appliances.jpg' },
+                            { label: "Tandem SIDE (без изтегляне) - 450 лв.", link: 'https://salex.bg/tandem-side-srebrist-za-shkaf-45sm-n60sm-31774/', value: 450, background: 'img/premium-appliances.jpg' },
+                            { label: "Tandem Изтеглящ се механизъм модел KESSEBÖHMER - 1700 лв.", value: 1700, background: 'img/partial/tandem-pullout.png' }
+                        ]
+                    }
+                },
+                {
+                    title: "Кош за боклук за вграждане",
+                    background: 'img/kitchen-background-lower-carcuses.png',
+                    options: {
+                        trash_bin: [
+                            { label: "Без", value: 0, background: 'img/kitchen-background4.jpg' },
+                            { label: "За закрепване на вратата - 50 лв.", value: 50, background: 'img/kitchen-background4.jpg' },
+                            { label: "Единичен, на водачи - 100 лв.", value: 100, link: 'https://ramois.com/kosh-za-vgrajdane-na-vrata-40-sm', background: 'img/kitchen-background4.jpg' },
+                            { label: "Модел ROSI 20 + 10L - 165 лв.", value: 165, link: 'https://rosi.bg/koshnica-sige---infinity-s-chelno-otvariane-i-plavno-pribirane---za-shkaf-150-mm-i-200-mm-4072.html' },
+                            { label: "СИСТЕМА BLANCO FLEXON II 60/2 + чекмедже под мивката - 380 лв.", value: 380, link: 'https://mivki.bg/sistema-blanco-flexon-ii-60-2-blanco-flexon-521471' },
+                        ]
+                    }
+                },
+                {
+                    title: "Плот и гръб",
+                    background: 'img/kitchen-default.png',
+                    options: {
+                        countertop: [
+                            { label: "Плот 39мм + гръб 15.9 Бял FENIX - 250 лв (-90% промоция!!!)", value: 250, background: 'img/laminate.jpg' },
+                            { label: "Термоплот 38мм + гръб - 550 лв", value: 550, background: 'img/laminate.jpg' },
+                            { label: "Компакт + гръб - 1200 лв", value: 1200, background: 'img/granite.jpg' },
+                            { label: "Компакт NTM Fenix + гръб (обемно оцветен) - 3000 лв", value: 3000, background: 'img/granite.jpg' },
+                            { label: "Технически камък - 5000 лв", value: 5000, background: 'img/granite.jpg' },
+                        ]
+                    }
+                }
+            ];
+
+            const initiaLSelections = {}
+            let initialPrice = 0;
+
+            steps.forEach(step => {
+                for (let key in step.options) {
+                    if (step.options[key].length > 0) {
+                        initialPrice += step.options[key][0].value;
+                        initiaLSelections[key] = step.options[key][0].value;
+                    }
+                }
+            });
+
+            const [price, setPrice] = useState(initialPrice);
+            const [selections, setSelections] = useState(initiaLSelections);
+
+            useEffect(() => {
+                // const selectedOption = Object.keys(selections).reduce((acc, key) => {
+                //     const selected = steps[currentStep].options[key]?.find(opt => opt.value === selections[key]);
+                //     return selected && selected.background ? selected.background : acc;
+                // }, steps[currentStep].background);
+                // document.body.style.backgroundImage = `url(${selectedOption})`;
+                // setTimeout(() => document.body.style.backgroundImage = `url(${steps[currentStep].background})`, 400);
+                document.body.style.backgroundImage = `url(${steps[currentStep].background})`;
+                // document.body.style.backgroundSize = 'auto';
+            }, [currentStep, selections]);
+
+            const handleNext = () => {
+                document.body.style.backgroundImage = `url('img/kitchen-default.png')`;
+                setCurrentStep(currentStep + 1);
+                setPartial('');
+                setLink('');
+            };
+
+            const handlePrev = () => {
+                document.body.style.backgroundImage = `url('img/kitchen-default.png')`;
+                setCurrentStep(currentStep - 1);
+                setPartial('');
+                setLink('');
+            };
+
+            const handleChange = (event) => {
+                const { id, value, background, link } = event.target;
+                const oldPrice = selections[id];
+                const newPrice = parseFloat(value);
+                setPartial(background);
+                setLink(link);
+                setPrice(price - oldPrice + newPrice);
+                setSelections({ ...selections, [id]: newPrice });
+            };
+
+            const downloadPDF = () => {
+                const doc = new jsPDF('l', 'pt', 'a4');
+
+                const tableData = Object.keys(selections).map(key => {
+                    const step = steps.find(step => step.options[key]);
+                    const option = step.options[key].find(opt => opt.value === selections[key]);
+                    return [
+                        step.title,
+                        option ? option.label.split('-')[0] : '',
+                        option ? `${option.value} лв.` : ''
+                    ];
+                });
+
+                console.log(tableData);
+
+                const font_url = "https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+
+                fetch('https://cdn.jsdelivr.net/npm/roboto-font@0.1.0/fonts/Roboto/roboto-bold-webfont.ttf')
+                    .then(response => response.arrayBuffer())
+                    .then(buffer => {
+                        // Convert the ArrayBuffer to binary string
+                        let binaryString = '';
+                        const bytes = new Uint8Array(buffer);
+                        const length = bytes.byteLength;
+                        for (let i = 0; i < length; i++) {
+                            binaryString += String.fromCharCode(bytes[i]);
+                        }
+
+                        // Add the font to jsPDF
+                        doc.addFileToVFS("Roboto.ttf", binaryString);
+                        doc.addFont("Roboto.ttf", "Roboto", "normal");
+                        doc.setFont("Roboto");
+
+                        doc.addImage(steps[0].background, 'JPEG', -150, 0, doc.internal.pageSize.getWidth() + 300, doc.internal.pageSize.getHeight());
+                        doc.setFontSize(12);
+                        doc.setTextColor(0, 0, 0);
+                        // doc.setFillColor(255, 255, 255, 0.01);
+                        // doc.rect(40, 40, doc.internal.pageSize.getWidth() - 80, doc.internal.pageSize.getHeight() - 800, 'F');
+                        doc.setDrawColor(0, 0, 0);
+                        doc.autoTable({
+                            startY: 10,
+                            head: [['Вид', 'Избор', 'Цена']],
+                            body: tableData,
+                            styles: {
+                                font: 'Roboto'
+                            },
+                            // styles: {
+                                // fillColor: "#66000000", // [255, 255, 255],
+                                // textColor: [0, 0, 0],
+                                // lineWidth: 0.1,
+                                // lineColor: [0, 0, 0]
+                            // },
+                            headStyles: {
+                                // fillColor: "#10000000"
+                                fillColor: [113, 85, 57],
+                                font: 'Roboto'
+                            //     textColor: [255, 255, 255]
+                            },
+                            theme: 'striped'
+                        });
+
+                        doc.autoTable({
+                            startY: 500,
+                            head: [['Общо']],
+                            body: [[price + ' лв']],
+                            styles: {
+                                font: 'Roboto'
+                            },
+                            headStyles: {
+                                fillColor: [113, 85, 57],
+                                font: 'Roboto'
+                            },
+                            theme: 'striped'
+                        });
+
+                        doc.save('kitchen_offer.pdf');
+                    })
+                    .catch(error => console.error('Error loading font:', error));
+            };
+
+            const isNextDisabled = () => {
+                return false;
+            };
+
+            return (
+                <div className="container">
+                    {steps.map((step, index) => (
+                        <Step key={index} step={index} isActive={currentStep === index}>
+                            <h2>{step.title}</h2>
+                            {Object.keys(step.options).map(option => (
+                                <div key={option}>
+                                    <select id={option} onChange={handleChange} value={selections[option]}>
+                                        {step.options[option].map(opt => (
+                                            <option key={opt.value} value={opt.value}>
+                                                {opt.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            ))}
+                            <br />
+                            <div className="quick-preview">
+                                {partial !== '' && (<img src = {partial}/>)}
+                            </div>
+                            <div className="buttons">
+                                {index < steps.length - 1 && (
+                                    <button onClick={handleNext} disabled={isNextDisabled()}>
+                                        <img src="https://img.icons8.com/ios-glyphs/30/000000/right.png" alt="Next Icon" />
+                                        {steps[index + 1].title} 
+                                    </button>)
+                                }
+                                {index === steps.length - 1 && (
+                                    <button onClick={downloadPDF} disabled={isNextDisabled()} className="download-button">
+                                        <img src="https://img.icons8.com/ios-glyphs/30/000000/download.png" alt="Download Icon" />
+                                        Свали Оферта
+                                    </button>
+                                )}
+                                {index > 0 && (
+                                    <button onClick={handlePrev}>
+                                        <img src="https://img.icons8.com/ios-glyphs/30/000000/left.png" alt="Previous Icon" />
+                                        {steps[index - 1].title}
+                                    </button>
+                                )}
+                            </div>
+                        </Step>
+                    ))}
+                    <h2>Цена: <span id="price">{price.toFixed(2)} лв</span></h2>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
