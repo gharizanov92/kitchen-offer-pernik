@@ -78,12 +78,40 @@
             border: 1px solid #ccc;
             border-radius: 5px;
         }
+        .container, .price-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .container h1, .price-container h2 {
+            text-align: center;
+        }
+        .price-container {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .price-container-wrapper {
+            width: 100%;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+        }
         #price {
             font-weight: bold;
             color: #B6814C;
         }
 
         @media (max-width: 600px) {
+            .container, .price-container {
+                margin: 10px;
+                padding: 10px;
+            }
             .container {
                 margin: 20px;
                 padding: 10px;
@@ -189,6 +217,7 @@
                 },
                 {
                     title: "Шкафове отвътре - горни дълбоки",
+                    label: '',
                     background: 'img/upper_cabinet_closeup_opened.png',
                     options: {
                         material_carcus_upper: [
@@ -218,6 +247,7 @@
                 
                 {
                     title: "Шкафове отвътре - горни плитки (с дървесни врати)",
+                    label: '',
                     background: 'img/upper_cabinet_closeup_opened.png',
                     options: {
                         material_carcus_upper_shallow: [
@@ -251,6 +281,7 @@
                 },
                 {
                     title: "Вратички - светли",
+                    label: '',
                     background: 'img/kitchen-default.png',
                     options: {
                         material_doors_plain: [
@@ -279,6 +310,7 @@
                 },
                 {
                     title: "Вратички - дървесен декор",
+                    label: '',
                     background: 'img/upper_cabinet_closeup.png',
                     options: {
                         material_doors_wood: [
@@ -302,6 +334,7 @@
                 },
                 {
                     title: "Панти",
+                    label: '',
                     background: 'img/kitchen-background1.png',
                     options: {
                         hinges: [
@@ -312,6 +345,7 @@
                 },
                 {
                     title: "Чекмеджета",
+                    label: '',
                     background: 'img/kitchen-drawers.png',
                     options: {
                         drawers: [
@@ -322,6 +356,7 @@
                 },
                 {
                     title: "Система за вътрешна организация на чекмеджета",
+                    label: '',
                     background: 'img/kitchen-drawers-organization.png',
                     options: {
                         drawer_organization: [
@@ -333,6 +368,7 @@
                 },
                 {
                     title: "Механизъм за сляп ъгъл",
+                    label: '',
                     background: 'img/magic_corner.png',
                     options: {
                         blind_corner: [
@@ -345,6 +381,7 @@
                 },
                 {
                     title: "Механизъм за бутилки",
+                    label: '',
                     background: 'img/kitchen-drawers-bottles.png',
                     options: {
                         twin_tower: [
@@ -356,6 +393,7 @@
                 },
                 {
                     title: "Механизъм за шкаф над фурна",
+                    label: '',
                     background: 'img/kitchen-above_oven_2.png',
                     options: {
                         tandem_side: [
@@ -368,6 +406,7 @@
                 },
                 {
                     title: "Кош за боклук за вграждане",
+                    label: '',
                     background: 'img/kitchen-background-lower-carcuses.png',
                     options: {
                         trash_bin: [
@@ -381,6 +420,7 @@
                 },
                 {
                     title: "Плот и гръб",
+                    label: '',
                     background: 'img/kitchen-default.png',
                     options: {
                         countertop: [
@@ -529,48 +569,60 @@
             };
 
             return (
-                <div className="container">
-                    {steps.map((step, index) => (
-                        <Step key={index} step={index} isActive={currentStep === index}>
-                            <h2>{step.title}</h2>
-                            {Object.keys(step.options).map(option => (
-                                <div key={option}>
-                                    <select id={option} onChange={handleChange} value={selections[option]}>
-                                        {step.options[option].map(opt => (
-                                            <option key={opt.value} value={opt.value}>
-                                                {opt.label}
-                                            </option>
-                                        ))}
-                                    </select>
+                <div>
+                    <div className="container">
+                        {steps.map((step, index) => (
+                            <Step key={index} step={index} isActive={currentStep === index}>
+                                <h2>{step.title}</h2>
+                                {Object.keys(step.options).map(option => (
+                                    <div key={option}>
+                                        <select id={option} onChange={handleChange} value={selections[option]}>
+                                            {step.options[option].map(opt => (
+                                                <option key={opt.value} value={opt.value}>
+                                                    {opt.label}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                ))}
+                                <br />
+                                <div className="quick-preview">
+                                    {partial !== '' && (<img src = {partial}/>)}
                                 </div>
-                            ))}
-                            <br />
-                            <div className="quick-preview">
-                                {partial !== '' && (<img src = {partial}/>)}
-                            </div>
-                            <div className="buttons">
-                                {index < steps.length - 1 && (
-                                    <button onClick={handleNext} disabled={isNextDisabled()}>
-                                        <img src="https://img.icons8.com/ios-glyphs/30/000000/right.png" alt="Next Icon" />
-                                        {steps[index + 1].title} 
-                                    </button>)
-                                }
-                                {index === steps.length - 1 && (
-                                    <button onClick={downloadPDF} disabled={isNextDisabled()} className="download-button">
-                                        <img src="https://img.icons8.com/ios-glyphs/30/000000/download.png" alt="Download Icon" />
-                                        Свали Оферта
-                                    </button>
-                                )}
-                                {index > 0 && (
-                                    <button onClick={handlePrev}>
-                                        <img src="https://img.icons8.com/ios-glyphs/30/000000/left.png" alt="Previous Icon" />
-                                        {steps[index - 1].title}
-                                    </button>
-                                )}
-                            </div>
-                        </Step>
-                    ))}
-                    <h2>Цена: <span id="price">{price.toFixed(2)} лв</span></h2>
+                                <div className="buttons">
+                                    {index > 0 ? (
+                                        <button onClick={handlePrev}>
+                                            <img src="https://img.icons8.com/ios-glyphs/30/000000/left.png" alt="Previous Icon" />
+                                            {steps[index - 1].label}
+                                        </button>
+                                    ) : (
+                                        <button onClick={handlePrev} disabled={true}>
+                                            <img src="https://img.icons8.com/ios-glyphs/30/000000/left.png" alt="Previous Icon" />
+                                            {steps[0].label}
+                                        </button>
+                                    )
+                                    }
+                                    {index === steps.length - 1 && (
+                                        <button onClick={downloadPDF} disabled={isNextDisabled()} className="download-button">
+                                            <img src="https://img.icons8.com/ios-glyphs/30/000000/download.png" alt="Download Icon" />
+                                            Свали Оферта
+                                        </button>
+                                    )}
+                                    {index < steps.length - 1 && (
+                                        <button onClick={handleNext} disabled={isNextDisabled()}>
+                                            <img src="https://img.icons8.com/ios-glyphs/30/000000/right.png" alt="Next Icon" />
+                                            {steps[index + 1].label} 
+                                        </button>)
+                                    }
+                                </div>
+                            </Step>
+                        ))}
+                    </div>
+                    <div className='price-container-wrapper'>
+                        <div className='price-container'>
+                            <h2>Цена кухня: <span id="price">{price.toFixed(2)} лв</span></h2>
+                        </div>
+                    </div>
                 </div>
             );
         };
@@ -579,3 +631,4 @@
     </script>
 </body>
 </html>
+
