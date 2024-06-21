@@ -19,8 +19,6 @@
             color: #333;
             transition: background-image 0.2s ease-in-out;
             background-repeat: no-repeat;
-            height: 100%;
-            width: 100%;
         }
         .container {
             max-width: 900px;
@@ -29,7 +27,7 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            max-height: 70vh;
+            max-height: 80vh;
         }
         h1, h2, h3, h4 {
             text-align: center;
@@ -198,7 +196,7 @@
         .table-container {
             flex: 1;
             overflow-y: auto;
-            max-height: 50vh;
+            max-height: 55vh;
             scrollbar-width: thin; /* For Firefox */
             scrollbar-color: #B6814C #f2f2f2;
         }
@@ -229,6 +227,7 @@
             .container {
                 margin: 20px;
                 padding: 10px;
+                margin-top: 100px;
             }
             .buttons button {
                 width: 100%;
@@ -237,6 +236,70 @@
             .buttons {
                 flex-direction: column;
                 align-items: center;
+            }
+
+            select {
+                margin: 0;
+                margin-top: 20px;
+            }
+
+            .step-dropdown {
+                margin-bottom: 20px;
+                text-align: center;
+                background-color: #B6814C;
+                padding: 10px;
+                border-radius: 0px;
+                width: 100%;
+                max-width: 650px;
+                box-sizing: border-box;
+                position: absolute;
+                top: 0px;
+                left: 50%;
+                transform: translateX(-50%);
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+            .dropdown-button {
+                width: 100%;
+                background-color: #B6814C;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .dropdown-button span {
+                margin-left: 10px;
+            }
+            .dropdown-content {
+                display: none;
+                position: absolute;
+                background-color: #f9f9f9;
+                width: 100%;
+                box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+                z-index: 1;
+                border-radius: 5px;
+                overflow: hidden;
+                box-sizing: border-box;
+            }
+            .dropdown-content button {
+                color: black;
+                padding: 12px 16px;
+                text-decoration: none;
+                display: block;
+                width: 100%;
+                border: none;
+                background: none;
+                text-align: left;
+                cursor: pointer;
+            }
+            .dropdown-content button:hover {
+                background-color: #f1f1f1;
+            }
+            .dropdown:hover .dropdown-content {
+                display: block;
             }
         }
     </style>
@@ -248,6 +311,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
+    <div className="step-dropdown-container">
+        <div className="step-dropdown">
+            <Dropdown />
+        </div>
+    </div>
     <div id="root"></div>
     <script type="text/babel">
         const { useState, useEffect } = React;
@@ -323,18 +391,6 @@
             const price_fridge_cabinet = area.fridge * material_price.pb_melamine;
 
             const steps = [
-                {
-                    title: "Цена за изработка, доставка, LED осветление и монтаж",
-                    background: 'img/kitchen-default.png',
-                    options: {
-                        fixed_price: [
-                            {
-                                label: "1200 лв",
-                                value: 1200
-                            }
-                        ]
-                    }
-                },
                 {
                     title: "Шкафове отвътре - долни",
                     background: 'img/kitchen-background-lower-carcuses.png',
@@ -576,6 +632,18 @@
                             { label: "Компакт + гръб - 1200 лв", value: 1200, background: 'img/granite.jpg' },
                             { label: "Компакт NTM Fenix + гръб (обемно оцветен) - 3000 лв", value: 3000, background: 'img/granite.jpg' },
                             { label: "Технически камък - 5000 лв", value: 5000, background: 'img/granite.jpg' },
+                        ]
+                    }
+                },
+                {
+                    title: "Цена за изработка, доставка, LED осветление и монтаж",
+                    background: 'img/kitchen-default.png',
+                    options: {
+                        fixed_price: [
+                            {
+                                label: "1200 лв",
+                                value: 1200
+                            }
                         ]
                     }
                 }
