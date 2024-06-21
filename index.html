@@ -45,6 +45,7 @@
         .buttons {
             display: flex;
             justify-content: space-between;
+            flex-wrap: wrap;
         }
         .buttons button {
             padding: 10px 20px;
@@ -55,6 +56,7 @@
             cursor: pointer;
             display: flex;
             align-items: center;
+            margin-top: 10px;
         }
         .buttons button:disabled {
             background-color: #cccccc;
@@ -79,6 +81,21 @@
         #price {
             font-weight: bold;
             color: #B6814C;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 20px;
+                padding: 10px;
+            }
+            .buttons button {
+                width: 100%;
+                justify-content: center;
+            }
+            .buttons {
+                flex-direction: column;
+                align-items: center;
+            }
         }
     </style>
     <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
@@ -137,7 +154,7 @@
                     options: {
                         fixed_price: [
                             {
-                                label: "Цена за изработка, доставка и монтаж - 1200лв",
+                                label: "Цена за изработка, доставка, LED осветление и монтаж - 1200лв",
                                 value: 1200
                             }
                         ]
