@@ -19,6 +19,7 @@
             color: #333;
             transition: background-image 0.2s ease-in-out;
             background-repeat: no-repeat;
+            background-image: url('img/kitchen-default.png');
         }
         .container {
             max-width: 900px;
@@ -468,7 +469,7 @@
                 {
                     title: "Шкафове отвътре - горни плитки (с дървесни врати)",
                     label: '',
-                    background: 'img/upper_cabinet_closeup_opened.png',
+                    background: 'img/upper_shallow_cabinet_closeup_opened.png',
                     options: {
                         material_carcus_upper_shallow: [
                         { 
@@ -687,9 +688,11 @@
                 // }, steps[currentStep].background);
                 // document.body.style.backgroundImage = `url(${selectedOption})`;
                 // setTimeout(() => document.body.style.backgroundImage = `url(${steps[currentStep].background})`, 400);
-                document.body.style.backgroundImage = `url(${steps[currentStep].background})`;
+                if (isConfiguring) {
+                    document.body.style.backgroundImage = `url(${steps[currentStep].background})`;
+                }
                 // document.body.style.backgroundSize = 'auto';
-            }, [currentStep, selections]);
+            }, [currentStep, selections, isConfiguring]);
 
             const handleNext = () => {
                 document.body.style.backgroundImage = `url('img/kitchen-default.png')`;
